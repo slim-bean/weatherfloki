@@ -2,13 +2,14 @@ package main
 
 import (
 	"flag"
+	"net"
+	"os"
+	"time"
+
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/grafana/loki-client-go/loki"
 	"github.com/prometheus/common/model"
-	"net"
-	"os"
-	"time"
 )
 
 func main() {
@@ -47,9 +48,11 @@ func main() {
 			continue
 		}
 		bytes := byteBuf[:n]
+		payload := string(bytes)
+		level.Debug(logger).Log("msg", "received packet", "payload", payload)
 
 		// Send
-		err = c.Handle(labels, time.Now(), string(bytes))
+		err = c.Handle(labels, time.Now(), payload)
 		if err != nil {
 			level.Error(logger).Log("msg", "when I wrote this it was impossible for the client to return an error?", "err", err)
 			continue
